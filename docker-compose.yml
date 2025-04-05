@@ -1,0 +1,72 @@
+services:
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api:8080
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api:/app
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=macrochain
+
+  scraper:
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    volumes:
+      - ./scraper:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=macrochain
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  db:
+    image: timescale/timescaledb:latest-pg14
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=macrochain
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

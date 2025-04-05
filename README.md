@@ -38,6 +38,8 @@
 
 ## 🏗️ Tech Stack
 
+- Important: do never write comments, except in particular special cases!
+
 ### 💻 Frontend
 - **Vue.js** 
 - **Tailwind CSS** (or similar utility-first framework)
