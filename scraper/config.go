@@ -17,11 +17,9 @@ type Config struct {
 	ScrapeInterval int    `mapstructure:"SCRAPE_INTERVAL"`
 }
 
-// LoadConfig loads the configuration from environment variables
 func LoadConfig() (*Config, error) {
 	v := viper.New()
 
-	// Set defaults
 	v.SetDefault("LOG_LEVEL", "info")
 	v.SetDefault("DB_HOST", "localhost")
 	v.SetDefault("DB_PORT", 5432)
@@ -30,9 +28,8 @@ func LoadConfig() (*Config, error) {
 	v.SetDefault("DB_NAME", "macrochain")
 	v.SetDefault("REDIS_HOST", "localhost")
 	v.SetDefault("REDIS_PORT", 6379)
-	v.SetDefault("SCRAPE_INTERVAL", 3600) // 1 hour in seconds
+	v.SetDefault("SCRAPE_INTERVAL", 60) // 1 minute in seconds
 
-	// Read from environment variables
 	v.AutomaticEnv()
 
 	var config Config

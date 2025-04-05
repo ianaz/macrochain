@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"macrochain/scraper/pkg/queue"
 	"time"
 )
 
@@ -21,10 +22,27 @@ func main() {
 		"redis_host", config.RedisHost,
 		"scrape_interval", config.ScrapeInterval)
 
+	redisQueue, err := queue.NewRedisQueue(ctx, config.RedisHost, config.RedisPort)
+	if err != nil {
+		panic("Failed to connect to Redis queue: " + err.Error())
+	}
+	defer redisQueue.Close()
+
 	// Main scraper loop
 	for {
 		// Example log for demonstration
 		logger.InfoContext(ctx, "Scraper cycle starting")
+
+		// Example of sending a message to a queue
+		message := queue.Message{
+			Body:     []byte("Scraper cycle started"),
+			Metadata: map[string]string{"source": "scraper", "type": "cycle_start"},
+		}
+
+		err := redisQueue.Send(ctx, "scraper_events", message)
+		if err != nil {
+			logger.ErrorContext(ctx, "Failed to send message to queue", "error", err)
+		}
 
 		// TODO: Implement scrapers for different data sources
 		// - FED data
