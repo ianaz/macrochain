@@ -156,8 +156,6 @@ func (q *RedisQueue) Subscribe(ctx context.Context, topic string) (<-chan Messag
 
 	// Watch for consumer to close the channel
 	go func() {
-		// This goroutine will be leaked if the consumer doesn't actively close!
-		// In a real system, we'd want more direct control or a different pattern.
 		<-ctx.Done()
 		close(done)
 	}()
@@ -167,15 +165,7 @@ func (q *RedisQueue) Subscribe(ctx context.Context, topic string) (<-chan Messag
 }
 
 func (q *RedisQueue) Unsubscribe(ctx context.Context, topic string) error {
-	// Note: We now rely on context cancellation to clean up subscriptions
-	// To unsubscribe, cancel the context that was used to create the subscription
-	slog.InfoContext(ctx, "To unsubscribe: cancel the context used when subscribing", "topic", topic)
-	return nil
-}
-
-func (q *RedisQueue) Ack(ctx context.Context, topic string, messageID string) error {
-	slog.InfoContext(ctx, "Attempt to acknowledge message", "topic", topic, "messageID", messageID)
-	slog.InfoContext(ctx, "Successfully acknowledged message", "topic", topic, "messageID", messageID)
+	slog.InfoContext(ctx, "To unsubscribe from a topic, cancel the context used when subscribing", "topic", topic)
 	return nil
 }
 

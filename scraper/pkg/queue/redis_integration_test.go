@@ -20,7 +20,9 @@ func TestRedisQueueIntegration(t *testing.T) {
 		t.Fatalf("Invalid Redis port: %v", err)
 	}
 
-	ctx := context.Background()
+	// Create a context with cancel function for proper cleanup
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // Ensure context is canceled to clean up subscriptions
 
 	// Create Redis queue
 	queue, err := NewRedisQueue(ctx, redisHost, redisPort)
@@ -67,11 +69,7 @@ func TestRedisQueueIntegration(t *testing.T) {
 		t.Fatal("Timed out waiting for message")
 	}
 
-	// Test unsubscribe
-	err = queue.Unsubscribe(ctx, topic)
-	if err != nil {
-		t.Fatalf("Failed to unsubscribe: %v", err)
-	}
+	// No need to explicitly unsubscribe - canceling the context will do it
 }
 
 func TestMultipleSubscribersIntegration(t *testing.T) {
@@ -83,7 +81,9 @@ func TestMultipleSubscribersIntegration(t *testing.T) {
 		t.Fatalf("Invalid Redis port: %v", err)
 	}
 
-	ctx := context.Background()
+	// Create a context with cancel function for proper cleanup
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // Ensure context is canceled to clean up subscriptions
 
 	// Create Redis queue
 	queue, err := NewRedisQueue(ctx, redisHost, redisPort)
@@ -148,11 +148,7 @@ func TestMultipleSubscribersIntegration(t *testing.T) {
 		t.Fatal("Subscriber 2: Timed out waiting for message")
 	}
 
-	// Cleanup
-	err = queue.Unsubscribe(ctx, topic)
-	if err != nil {
-		t.Fatalf("Failed to unsubscribe: %v", err)
-	}
+	// No need to explicitly unsubscribe - canceling the context will do it
 }
 
 // Helper function to get environment variables with fallback
